@@ -4,16 +4,24 @@ LIBS = -lncurses
 INCLUDES = -Iinсlude/ 
 
 SRCDIR = src
+OBJDIR = obj
 BINDIR = bin
+TARGET = $(BINDIR)/1
 
 SRCS = $(wildcard $(SRCDIR)/*.c)
-TARGET = $(BINDIR)/1
+OBJS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS))
 
 all: $(TARGET)
 
-$(TARGET): $(SRCS)
-	$(CC) $(CFLAGS) $^ -o $@ $(LIBS) $(INCLUDES)
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
+
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
 
 clean:
-	rm -f $(TARGET)
+	rm -rf $(OBJDIR) $(TARGET)
 
