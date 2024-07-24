@@ -3,7 +3,7 @@
 #include <habit.h>
 #include <time.h>
 #include <ncurses.h>
-
+#include <string.h>
 
 
 FILE* check_file(char *data){
@@ -30,6 +30,7 @@ int get_len_file(FILE *file){
 }
 
 void creat_new_habit(int last_y_poss, struct Habit *habit){
+	print_status(CREAT);
 	char tmp;
 	int x = 0;
 	time_t current_time;
@@ -63,6 +64,49 @@ void creat_new_habit(int last_y_poss, struct Habit *habit){
 	habit->habit_name[x] = '\0';
 	habit->count = 0;
 	habit->date = habit_time;
+	print_status(NORMAL);
+}
+
+void remove_habit(struct Habit *habit, int *number_habit, int del_element){
+	for (int i = del_element; i < *number_habit - 1; i++){
+		strcpy(habit[i].habit_name, habit[i+1].habit_name);
+		habit[i].count = habit[i+1].count;
+		habit[i].date = habit[i+1].date;
+		mvhline(i+2, 0, ' ', 19);
+		mvprintw(i+2, 0, "%s", habit[i].habit_name);
+		mvhline(i+2, 21, ' ', HORIZONTAL_LEN);
+		mvprintw(i+2, 21, "%5d", habit[i].count);
+		mvaddch(i+2, 26, '|');
+		mvprintw(i+2, 27, " []");
+	}
+
+	int last_el = *number_habit;
+	
+	mvhline(last_el+1, 0, ' ', 19);
+	mvhline(last_el+1, 21, ' ', HORIZONTAL_LEN);
+	mvchgat(del_element + 2, 0, HORIZONTAL_LEN, A_REVERSE, 0, NULL);
+	mvaddch(last_el+1, 26, '|');
+	
+	if (last_el > 1){
+		habit = realloc(habit, (--(*number_habit))*sizeof(struct Habit));
+	}
+}
+
+void print_status(int status){
+	int row, col;
+
+	getmaxyx(stdscr,row,col);
+
+	if (status == NORMAL){
+		attron(A_REVERSE);
+		mvprintw(row - 1, 0, "NORMAL");
+		attroff(A_REVERSE);
+	}
+	else if (status == CREAT){
+		attron(A_REVERSE);
+		mvprintw(row - 1, 0, "CREAT ");
+		attroff(A_REVERSE);
+	}
 }
 
 void table_print(){
@@ -71,7 +115,9 @@ void table_print(){
 
 	printw("%s", header_name);
 	mvprintw(0, 21, "%s", header_count);
-	mvhline(1, 0, '-', 25);
+	mvhline(1, 0, '-', 31);
 	mvvline(0, 20, '|', 20);
+	mvprintw(0, 27, "%s", "done");
+	mvvline(0, 26, '|', 20);
 	refresh();
 }

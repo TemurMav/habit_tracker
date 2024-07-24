@@ -40,7 +40,7 @@ int main(int argc, char *argv[]){
 	table_print();
 
 	if (n == 0){
-		mvchgat(n+2, 0, 25, A_REVERSE, 0, NULL);
+		mvchgat(n+2, 0, HORIZONTAL_LEN, A_REVERSE, 0, NULL);
 		habit_list = (struct Habit*)malloc((++n)*sizeof(struct Habit));
 		if(habit_list == NULL){
 			fprintf(stderr, "Can`t malloc.\n");
@@ -48,37 +48,43 @@ int main(int argc, char *argv[]){
 		}
 		creat_new_habit(y, &habit_list[n-1]);
 		attron(A_REVERSE);
-		mvprintw(y, 24, "%d", habit_list[n-1].count);
+		mvprintw(y, 21, "%5d", habit_list[n-1].count);
+		mvprintw(y, 27, " []");
 		attroff(A_REVERSE);
 	}
 
-	
+	print_status(NORMAL);
 	while((tmp = getch()) != 'q'){
 		switch(tmp){
 			case 'n':
-				mvchgat(y++, x, 25, A_NORMAL, 0, NULL);
-				mvchgat(y, x, 25, A_REVERSE, 0, NULL);
-				habit_list = realloc(habit_list, (++n)*sizeof(struct Habit));
+				mvchgat(y++, x, HORIZONTAL_LEN, A_NORMAL, 0, NULL);
+				mvchgat(y = (++n)+1, x, HORIZONTAL_LEN, A_REVERSE, 0, NULL);
+				habit_list = realloc(habit_list, (n)*sizeof(struct Habit));
 				if(habit_list == NULL){
 					fprintf(stderr, "Can`t realloc.\n");
 					return 2;
 				}
 				creat_new_habit(y, &habit_list[n-1]);
 				attron(A_REVERSE);
-				mvprintw(y, 24, "%d", habit_list[n-1].count);
+				mvprintw(y, 21, "%5d", habit_list[n-1].count);
+				mvprintw(y, 27, " []");
 				attroff(A_REVERSE);
-				/*mvwprintw(stdscr, y, x, "%s", string);*/
 				break;
 			case 'j':
 				if (y < n+1){
-					mvchgat(y++, x, 25, A_NORMAL, 0, NULL);
-					mvchgat(y, x, 25, A_REVERSE, 0, NULL);
+					mvchgat(y++, x, HORIZONTAL_LEN, A_NORMAL, 0, NULL);
+					mvchgat(y, x, HORIZONTAL_LEN, A_REVERSE, 0, NULL);
 				}
 				break;
 			case 'k':
 				if (y > 2){
-					mvchgat(y--, x, 25, A_NORMAL, 0, NULL);
-					mvchgat(y, x, 25, A_REVERSE, 0, NULL);
+					mvchgat(y--, x, HORIZONTAL_LEN, A_NORMAL, 0, NULL);
+					mvchgat(y, x, HORIZONTAL_LEN, A_REVERSE, 0, NULL);
+				}
+				break;
+			case 'd':
+				if (n > 0){
+					remove_habit(habit_list, &n, y-2);
 				}
 				break;
 			case 'p':
