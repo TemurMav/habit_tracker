@@ -63,11 +63,11 @@ void creat_new_habit(int last_y_poss, struct Habit *habit){
 
 	habit->habit_name[x] = '\0';
 	habit->count = 0;
-	habit->date = habit_time;
+	habit->date = mktime(habit_time);
 	print_status(NORMAL);
 }
 
-void remove_habit(struct Habit *habit, int *number_habit, int del_element){
+void remove_habit(struct Habit *habit, uint32_t *number_habit, int del_element){
 	for (int i = del_element; i < *number_habit - 1; i++){
 		strcpy(habit[i].habit_name, habit[i+1].habit_name);
 		habit[i].count = habit[i+1].count;
@@ -80,7 +80,7 @@ void remove_habit(struct Habit *habit, int *number_habit, int del_element){
 		mvprintw(i+2, 27, " []");
 	}
 
-	int last_el = *number_habit;
+	uint32_t last_el = *number_habit;
 	
 	mvhline(last_el+1, 0, ' ', 19);
 	mvhline(last_el+1, 21, ' ', HORIZONTAL_LEN);
@@ -89,6 +89,32 @@ void remove_habit(struct Habit *habit, int *number_habit, int del_element){
 	
 	if (last_el > 1){
 		habit = realloc(habit, (--(*number_habit))*sizeof(struct Habit));
+	}
+}
+
+void check_habit(struct Habit *habit, int y){
+	time_t now, last_upd;
+	struct tm *tmp;
+	
+	time(&now);
+	last_upd = habit->date;
+
+	if ( 24*3600 < now - last_upd && now-last_upd < 2*24*3600){
+		mvprintw(y, 27, "[x]");
+		tmp = localtime(&now);
+
+		tmp->tm_sec = 1;
+		tmp->tm_min = 0;
+		tmp->tm_hour = 0;
+
+		habit->count += 1;
+		habit->date = mktime(tmp);
+		mvprintw(y, 21, "%5d", habit->count);
+	}
+	else if (habit->count == 0){
+		habit->count = 1;
+		mvprintw(y, 21, "%5d", habit->count);
+		mvprintw(y, 27, "[x]");
 	}
 }
 

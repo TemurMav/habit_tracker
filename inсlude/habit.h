@@ -1,6 +1,9 @@
 #ifndef HABIT
 #define HABIT
 
+#include <stdint.h>
+#include <time.h>
+
 #define MAX_HABIT_LEN 20
 #define MAX_LINE_LEN 80
 #define BRIGHT_BLACK 8
@@ -13,8 +16,8 @@
 
 struct Habit {
 	char habit_name[MAX_HABIT_LEN];
-	struct tm *date; /*last update*/
-	int count;
+	time_t date;
+	uint32_t count;
 };
 
 void print_help();
@@ -29,6 +32,8 @@ void creat_new_habit(int, struct Habit*);
 
 void print_status(int);
 
-void remove_habit(struct Habit*, int*, int);
+void remove_habit(struct Habit*, uint32_t*, int);
+
+void check_habit(struct Habit*, int);
 
 #endif
